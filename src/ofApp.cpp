@@ -25,14 +25,10 @@ void ofApp::setup(){
     
     
 
-    //cout << ofGetElapsedTimeMillis() << endl;
     man.calcMandelbulb();
-    //cout << ofGetElapsedTimeMillis() << endl;
-    voxelize.voxelize(man.getPointCloud(), man.getColorCloud());
     
 
-    //man.exportAsPly();
-     
+    
     
     
 }
@@ -47,7 +43,9 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-   
+    ofEnableDepthTest();
+    light.enable();
+    
     ofBackground(0);
     
     
@@ -69,11 +67,15 @@ void ofApp::draw(){
     }
      */
     
-    voxelize.draw();
-
+    //voxelize.draw();
+    man.draw();
     
     
     cam.end();
+    
+    man.drawGui();
+    
+
     
     
 
@@ -89,8 +91,10 @@ void ofApp::keyPressed(int key){
 void ofApp::keyReleased(int key){
     
     if(key == ' '){
-        recording = true;
-        startFrameNum = ofGetFrameNum();
+        //recording = true;
+        //startFrameNum = ofGetFrameNum();
+        
+        man.exportAsPly("man2.ply");
     }
 
 }

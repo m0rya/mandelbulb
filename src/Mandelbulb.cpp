@@ -8,11 +8,36 @@
 #include "Mandelbulb.hpp"
 
 
+Mandelbulb::Mandelbulb(){
+    gui.setup();
+    
+    gui_recalc.addListener(this, &Mandelbulb::calcMandelbulb);
+    
+    gui.add(gui_recalc.setup("Recalc"));
+    gui.add(gui_resol.setup("resolution", 200, 10, 500));
+    gui.add(gui_itr.setup("iteration", 5, 1, 20));
+    gui.add(gui_nValue.setup("nValue", 8, 1, 20));
+    gui.add(gui_size.setup("size", 3.0, 1.0, 10.0));
+    gui.add(gui_label.setup("pressing SPACE key export .ply", ""));
+}
+
+Mandelbulb::~Mandelbulb(){
+    gui_recalc.removeListener(this, &Mandelbulb::calcMandelbulb);
+}
+
+
+
 
 
 void Mandelbulb::calcMandelbulb(){
     
-    cout << ofGetElapsedTimeMillis() << endl;
+    //from gui
+    resolution = gui_resol;
+    iteration = gui_itr;
+    nValue = gui_nValue;
+    size = gui_size;
+
+    
     point.clear();
     result.clear();
     cValue.clear();
@@ -39,7 +64,6 @@ void Mandelbulb::calcMandelbulb(){
     
     cValue = point;
     
-    cout << ofGetElapsedTimeMillis() << endl;
     
     
     for(int i=0; i<iteration; i++){
@@ -80,7 +104,6 @@ void Mandelbulb::calcMandelbulb(){
     }
     
     
-    cout << ofGetElapsedTimeMillis() << endl;
 
     
     //六方を囲まれた
@@ -119,8 +142,8 @@ void Mandelbulb::calcMandelbulb(){
             }
         }
     }
-    
-    cout << ofGetElapsedTimeMillis() << endl;
+
+    vox.voxelize(mandel, colorForMandel);
 
 
     
@@ -128,10 +151,13 @@ void Mandelbulb::calcMandelbulb(){
 
 
 void Mandelbulb::draw(){
-    
+    /*
     for(int i=0; i<mandel.size(); i++){
         ofDrawBox(mandel[i].x, mandel[i].y, mandel[i].z, 1, 1, 1);
     }
+     */
+    vox.draw();
+    
     
 }
 
@@ -164,11 +190,17 @@ vector<ofFloatColor> Mandelbulb::getColorCloud(){
     return colorForMandel;
 }
 
+void Mandelbulb::drawGui(){
+    glDisable(GL_LIGHTING);
+    glDisable(GL_DEPTH_TEST);
+    gui.draw();
+    
+}
 
-void Mandelbulb::exportAsPly(){
+void Mandelbulb::exportAsPly(string fileName){
     ofFile plyFile;
     
-    plyFile.open("mandelbulb.ply", ofFile::WriteOnly);
+    plyFile.open(fileName, ofFile::WriteOnly);
     cout << mandel.size() << endl;
     
     string headerText = "ply\nformat ascii 1.0\ncomment File exported by m0rya's software\nelement vertex ";
@@ -219,5 +251,8 @@ void Mandelbulb::exportAsPly(){
     }
     
     
+    cout << fileName << " is exported safely\n";
     
+ 
 }
+

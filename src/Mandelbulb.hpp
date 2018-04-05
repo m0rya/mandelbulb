@@ -10,12 +10,15 @@
 
 #include <stdio.h>
 #include "ofMain.h"
+#include "ofxGui.h"
+#include "Voxelize.hpp"
 
 
 class Mandelbulb{
 public:
     
-    //Mandelbulb();
+    Mandelbulb();
+    ~Mandelbulb();
     
     
     
@@ -32,7 +35,9 @@ public:
     void setEmmisionValue(float _emmisionValue);
     
     
-    void exportAsPly();
+    void exportAsPly(string fileName);
+    void recalc();
+    void drawGui();
     
     
     
@@ -56,6 +61,19 @@ private:
     
     vector<double> colorItr;
     vector<ofFloatColor> colorForMandel;
+    
+    Voxelize vox;
+    
+    
+    //gui
+    ofxPanel gui;
+    ofxIntSlider gui_resol;
+    ofxIntSlider gui_itr;
+    ofxIntSlider gui_nValue;
+    ofxFloatSlider gui_size;
+    ofxButton gui_recalc;
+    ofxLabel gui_label;
+    
     
     
     

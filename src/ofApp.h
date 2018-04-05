@@ -3,6 +3,8 @@
 #include "ofMain.h"
 #include "Mandelbulb.hpp"
 #include "Voxelize.hpp"
+#include "ofxGui.h"
+
 
 class ofApp : public ofBaseApp{
 
@@ -30,5 +32,8 @@ class ofApp : public ofBaseApp{
     
     Mandelbulb man;
     Voxelize voxelize;
+    
+    
+    
 		
 };

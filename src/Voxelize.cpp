@@ -177,10 +177,17 @@ void Voxelize::voxelize(vector<ofVec3f> pointCloud, vector<ofFloatColor> colorCl
         
         
     }
+ 
+    if(myVbo.getNumVertices() > 1){
+        myVbo.updateVertexData(tmpP, numVerts);
+        myVbo.updateNormalData(normal, numVerts);
+        myVbo.updateColorData(colors, numVerts);
+    }else{
     
-    myVbo.setVertexData(tmpP, numVerts, GL_DYNAMIC_DRAW);
-    myVbo.setNormalData(normal, numVerts, GL_DYNAMIC_DRAW);
-    myVbo.setColorData(colors, numVerts, GL_DYNAMIC_DRAW);
+        myVbo.setVertexData(tmpP, numVerts, GL_DYNAMIC_DRAW);
+        myVbo.setNormalData(normal, numVerts, GL_DYNAMIC_DRAW);
+        myVbo.setColorData(colors, numVerts, GL_DYNAMIC_DRAW);
+    }
     
     
     
