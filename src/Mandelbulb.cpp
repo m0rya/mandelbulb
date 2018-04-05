@@ -12,18 +12,34 @@
 
 void Mandelbulb::calcMandelbulb(){
     
+    cout << ofGetElapsedTimeMillis() << endl;
+    point.clear();
+    result.clear();
+    cValue.clear();
+    
+    mandel.clear();
+    colorForMandel.clear();
+    
+    point.resize(resolution*resolution*resolution);
+    result.resize(resolution*resolution*resolution);
+    cValue.resize(resolution*resolution*resolution);
+
     for(int i=0; i<resolution; i++){
         for(int j=0; j<resolution; j++){
             for(int k=0; k<resolution; k++){
                 
                 ofVec3f tmp = ofVec3f( float((i-resolution/2.0)/resolution) * size, float((j-resolution/2.0)/resolution) * size, float((k-resolution/2.0)/resolution)*size);
                 
-                point.push_back(tmp);
-                cValue.push_back(tmp);
-                result.push_back(true);
+                point[i*resolution*resolution + j*resolution + k] = tmp;
+                result[i*resolution*resolution + j*resolution + k] = true;
+         
             }
         }
     }
+    
+    cValue = point;
+    
+    cout << ofGetElapsedTimeMillis() << endl;
     
     
     for(int i=0; i<iteration; i++){
@@ -32,7 +48,7 @@ void Mandelbulb::calcMandelbulb(){
             for(int b=0; b<resolution; b++){
                 for(int c=0; c<resolution; c++){
                     
-                    if(result[a*resolution*resolution + b*resolution +c] == true){
+                    if(result[a*resolution*resolution + b*resolution +c]){
                         
                         ofVec3f v = point[a*resolution*resolution + b*resolution +c];
                         
@@ -46,7 +62,6 @@ void Mandelbulb::calcMandelbulb(){
                         float vz = cos(nValue*theta);
                         
                         ofVec3f tmpResult = ofVec3f(vx, vy, vz) * vr + cValue[a*resolution*resolution + b*resolution +c];
-                        
                         
                         
                         if(tmpResult.length() > emmisionValue || isnan(tmpResult.length()) ){
@@ -64,6 +79,9 @@ void Mandelbulb::calcMandelbulb(){
         }
     }
     
+    
+    cout << ofGetElapsedTimeMillis() << endl;
+
     
     //六方を囲まれた
     for(int i=1; i<resolution-1; i++){
@@ -98,11 +116,12 @@ void Mandelbulb::calcMandelbulb(){
                 }
                 
                 
-                
-                
             }
         }
     }
+    
+    cout << ofGetElapsedTimeMillis() << endl;
+
 
     
 }
@@ -143,4 +162,62 @@ vector<ofVec3f> Mandelbulb::getPointCloud(){
 
 vector<ofFloatColor> Mandelbulb::getColorCloud(){
     return colorForMandel;
+}
+
+
+void Mandelbulb::exportAsPly(){
+    ofFile plyFile;
+    
+    plyFile.open("mandelbulb.ply", ofFile::WriteOnly);
+    cout << mandel.size() << endl;
+    
+    string headerText = "ply\nformat ascii 1.0\ncomment File exported by m0rya's software\nelement vertex ";
+    headerText += ofToString(mandel.size() * 8);
+    headerText += "\nproperty float x\nproperty float y\nproperty float z\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nelement face ";
+    headerText += ofToString(mandel.size() * 6);
+    headerText += "\nproperty list uchar uint vertex_index\nend_header\n";
+    
+    plyFile << headerText;
+    
+    
+    for(int i=0; i<mandel.size(); i++){
+        ofColor tc = ofColor(int(ofMap(colorForMandel[i].r,0.0,1.0, 0, 255)), int(ofMap(colorForMandel[i].g,0.0,1.0, 0, 255)), int(ofMap(colorForMandel[i].b,0.0,1.0, 0, 255)));
+        
+       
+        
+        plyFile << ofToString(mandel[i].x+0.5) << " " << ofToString(mandel[i].y+0.5) << " " << ofToString(mandel[i].z+0.5) << " " << to_string(tc.r) << " " << to_string(tc.g) << " " << to_string(tc.b) << "\n";
+        
+        plyFile << ofToString(mandel[i].x+0.5) << " " << ofToString(mandel[i].y+0.5) << " " << ofToString(mandel[i].z-0.5) << " " << to_string(tc.r) << " " << to_string(tc.g) << " " << to_string(tc.b) << "\n";
+        
+        plyFile << ofToString(mandel[i].x-0.5) << " " << ofToString(mandel[i].y+0.5) << " " << ofToString(mandel[i].z-0.5) << " " << to_string(tc.r) << " " << to_string(tc.g) << " " << to_string(tc.b) << "\n";
+        
+        plyFile << ofToString(mandel[i].x-0.5) << " " << ofToString(mandel[i].y+0.5) << " " << ofToString(mandel[i].z+0.5) << " " << to_string(tc.r) << " " << to_string(tc.g) << " " << to_string(tc.b) << "\n";
+        
+        plyFile << ofToString(mandel[i].x+0.5) << " " << ofToString(mandel[i].y-0.5) << " " << ofToString(mandel[i].z+0.5) << " " << to_string(tc.r) << " " << to_string(tc.g) << " " << to_string(tc.b) << "\n";
+        
+        plyFile << ofToString(mandel[i].x+0.5) << " " << ofToString(mandel[i].y-0.5) << " " << ofToString(mandel[i].z-0.5) << " " << to_string(tc.r) << " " << to_string(tc.g) << " " << to_string(tc.b) << "\n";
+        
+        plyFile << ofToString(mandel[i].x-0.5) << " " << ofToString(mandel[i].y-0.5) << " " << ofToString(mandel[i].z-0.5) << " " << to_string(tc.r) << " " << to_string(tc.g) << " " << to_string(tc.b) << "\n";
+        
+        plyFile << ofToString(mandel[i].x-0.5) << " " << ofToString(mandel[i].y-0.5) << " " << ofToString(mandel[i].z+0.5) << " " << to_string(tc.r) << " " << to_string(tc.g) << " " << to_string(tc.b) << "\n";
+        
+    }
+    
+    for(int i=0; i<mandel.size(); i++){
+        plyFile << "4 " << ofToString(i*8 + 0) << " " << ofToString(i*8 + 1) << " " << ofToString(i*8 + 2) << " " << ofToString(i*8 + 3) << "\n";
+        
+        plyFile << "4 " << ofToString(i*8 + 3) << " " << ofToString(i*8 + 2) << " " << ofToString(i*8 + 6) << " " << ofToString(i*8 + 7) << "\n";
+        
+        plyFile << "4 " << ofToString(i*8 + 7) << " " << ofToString(i*8 + 6) << " " << ofToString(i*8 + 5) << " " << ofToString(i*8 + 4) << "\n";
+        
+        plyFile << "4 " << ofToString(i*8 + 4) << " " << ofToString(i*8 + 5) << " " << ofToString(i*8 + 1) << " " << ofToString(i*8 + 0) << "\n";
+        
+        
+        plyFile << "4 " << ofToString(i*8 + 0) << " " << ofToString(i*8 + 3) << " " << ofToString(i*8 + 7) << " " << ofToString(i*8 + 4) << "\n";
+        
+        plyFile << "4 " << ofToString(i*8 + 5) << " " << ofToString(i*8 + 6) << " " << ofToString(i*8 + 2) << " " << ofToString(i*8 + 1) << "\n";
+    }
+    
+    
+    
 }

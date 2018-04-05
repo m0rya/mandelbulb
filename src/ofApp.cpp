@@ -1,15 +1,7 @@
 #include "ofApp.h"
 
-const int resol = 250;
-ofVec3f point[resol][resol][resol];
-ofVec3f cValue[resol][resol][resol];
-bool result[resol][resol][resol];
-double lenOfMan[resol][resol][resol];
 
 
-vector<ofVec3f> mandel;
-vector<double> colorItr;
-vector<ofColor> colorForMandel;
 
 bool recording = false;
 int startFrameNum = 0;
@@ -32,11 +24,14 @@ void ofApp::setup(){
     light.setSpecularColor(ofFloatColor(1.0, 1.0, 1.0));
     
     
-    
-    
-    
+
+    //cout << ofGetElapsedTimeMillis() << endl;
     man.calcMandelbulb();
+    //cout << ofGetElapsedTimeMillis() << endl;
     voxelize.voxelize(man.getPointCloud(), man.getColorCloud());
+    
+
+    //man.exportAsPly();
      
     
     

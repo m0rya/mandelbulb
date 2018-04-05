@@ -32,14 +32,17 @@ public:
     void setEmmisionValue(float _emmisionValue);
     
     
+    void exportAsPly();
+    
+    
     
 private:
-    int resolution = 100;
+    int resolution = 200;
     int iteration = 5;
     int nValue = 8;
     float size = 3.0;
     
-    int emmisionValue = 10;
+    int emmisionValue = 5;
     
     
     vector<ofVec3f> point;
