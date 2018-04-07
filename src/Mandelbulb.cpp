@@ -14,7 +14,7 @@ Mandelbulb::Mandelbulb(){
     gui_recalc.addListener(this, &Mandelbulb::calcMandelbulb);
     
     gui.add(gui_recalc.setup("Recalc"));
-    gui.add(gui_resol.setup("resolution", 200, 10, 500));
+    gui.add(gui_resol.setup("resolution", 30, 10, 500));
     gui.add(gui_itr.setup("iteration", 5, 1, 20));
     gui.add(gui_nValue.setup("nValue", 8, 1, 20));
     gui.add(gui_size.setup("size", 3.0, 1.0, 10.0));
@@ -41,6 +41,8 @@ void Mandelbulb::calcMandelbulb(){
     point.clear();
     result.clear();
     cValue.clear();
+    dataForBinvox.clear();
+    
     
     mandel.clear();
     colorForMandel.clear();
@@ -48,6 +50,7 @@ void Mandelbulb::calcMandelbulb(){
     point.resize(resolution*resolution*resolution);
     result.resize(resolution*resolution*resolution);
     cValue.resize(resolution*resolution*resolution);
+    //dataForBinvox.resize(resolution*resolution*resolution);
 
     for(int i=0; i<resolution; i++){
         for(int j=0; j<resolution; j++){
@@ -107,12 +110,31 @@ void Mandelbulb::calcMandelbulb(){
 
     
     //六方を囲まれた
-    for(int i=1; i<resolution-1; i++){
-        for(int j=1; j<resolution-1; j++){
-            for(int k=1; k<resolution-1; k++){
+    
+    bool binvoxFlg = false; //false->0, true->1
+    int binvoxCount = 0;
+    
+    for(int i=0; i<resolution; i++){
+        for(int j=0; j<resolution; j++){
+            for(int k=0; k<resolution; k++){
                 
                 
                 if(result[i*resolution*resolution + j*resolution + k] == false){
+                    
+                    if(binvoxFlg){
+                        binvoxFlg = false;
+                        if(binvoxCount > 0){
+                            dataForBinvox.push_back(1);
+                            dataForBinvox.push_back(binvoxCount);
+                        }
+                        binvoxCount = 1;
+
+                        
+                        
+                    }else{
+                        binvoxCount++;
+                    }
+                    
                     continue;
                 }
                 
@@ -126,8 +148,43 @@ void Mandelbulb::calcMandelbulb(){
                 if(result[i*resolution*resolution + j*resolution + k + 1] == true) count ++;
                 
                 if(count == 6){
+                    
+                    if(binvoxFlg){
+                        binvoxFlg = false;
+                        if(binvoxCount >0){
+                            dataForBinvox.push_back(1);
+                            dataForBinvox.push_back(binvoxCount);
+                        }
+                        binvoxCount = 1;
+
+                        
+                        
+                    }else{
+                        binvoxCount++;
+                        
+                    }
+                    
+                    
                     continue;
+                    
                 }else{
+                    
+                    if(!binvoxFlg){
+                        binvoxFlg = true;
+                        
+                        if(binvoxCount > 0){
+                            
+                            dataForBinvox.push_back(0);
+                            dataForBinvox.push_back(binvoxCount);
+
+                        }
+                        binvoxCount = 1;
+                        
+                        
+                    }else{
+                        binvoxCount++;
+                    }
+                    
                     mandel.push_back(ofVec3f(i-resolution/2,k-resolution/2,j-resolution/2));
                     
                     ofColor tmpColor = ofColor::fromHsb(ofMap(ofVec3f(i-resolution/2,j-resolution/2,k-resolution/2).length(), 0.0, resolution/2, 0, 255), 255, 255);
@@ -143,6 +200,10 @@ void Mandelbulb::calcMandelbulb(){
         }
     }
 
+    point.clear();
+    result.clear();
+    cValue.clear();
+    
     vox.voxelize(mandel, colorForMandel);
 
 
@@ -254,5 +315,63 @@ void Mandelbulb::exportAsPly(string fileName){
     cout << fileName << " is exported safely\n";
     
  
+}
+
+
+void Mandelbulb::exportAsBinvox(string fileName){
+    
+   
+    
+    
+    ofFile binvoxFile;
+    
+    /*
+    binvoxFile.open(fileName, ofFile::WriteOnly);
+    binvoxFile << "#binvox 1\ndim " << resolution << " " << resolution << " " << resolution << "\ntranslate 0.0 0.0 0.0\nscale 1\ndata\n";
+    for(int i=0; i<dataForBinvox.size(); i++){
+        //binvoxFile << ofToHex(dataForBinvox[i]);
+        //binvoxFile << c_str(dataForBinvox[i]);
+        //cout << ofToHex(dataForBinvox[i]) << endl;
+       
+        binvoxFile << ofToString(char(dataForBinvox[i]));
+        cout << dataForBinvox[i] << endl;
+        
+    }
+    */
+    
+    binvoxFile.open(fileName, ofFile::WriteOnly);
+    binvoxFile << "#binvox 1\ndim " << 12 << " " << 12 << " " << 12 << "\ntranslate 0.0 0.0 0.0\nscale 1\ndata\n";
+    for(int i=0; i<dataForBinvox.size(); i++){
+        //binvoxFile << ofToHex(dataForBinvox[i]);
+        //binvoxFile << c_str(dataForBinvox[i]);
+        //cout << ofToHex(dataForBinvox[i]) << endl;
+        
+        binvoxFile << ofToString(char(dataForBinvox[i]));
+        //cout << dataForBinvox[i] << endl;
+        
+    }
+    
+    for(int i=0; i<6; i++){
+        for(int j=0; j<6; j++){
+            for(int k=0; k<6; k++){
+                if(k%2 == 0){
+                    binvoxFile << ofToString(char(0));
+                    cout << "0 ";
+                }else{
+                    binvoxFile << ofToString(char(1));
+                    cout << "1 ";
+                }
+                
+                binvoxFile << ofToString(char(2));
+                cout << "2\n";
+            }
+        }
+    }
+    
+    
+    cout << "exported\n";
+    
+    
+    
 }
 

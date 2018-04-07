@@ -1,5 +1,5 @@
 #include "ofApp.h"
-
+#include "stdlib.h"
 
 
 
@@ -26,7 +26,7 @@ void ofApp::setup(){
     
 
     man.calcMandelbulb();
-    
+  
 
     
     
@@ -94,7 +94,8 @@ void ofApp::keyReleased(int key){
         //recording = true;
         //startFrameNum = ofGetFrameNum();
         
-        man.exportAsPly("man2.ply");
+        //man.exportAsPly("man3.ply");
+        //man.exportAsBinvox("man.binvox");
     }
 
 }

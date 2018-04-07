@@ -8,6 +8,9 @@
 #include "Voxelize.hpp"
 
 void Voxelize::voxelize(vector<ofVec3f> pointCloud){
+    
+    myVbo.clear();
+    
     numVerts = pointCloud.size() * 24;
     
     ofVec3f *tmpP;
@@ -97,6 +100,8 @@ void Voxelize::voxelize(vector<ofVec3f> pointCloud){
 void Voxelize::voxelize(vector<ofVec3f> pointCloud, vector<ofFloatColor> colorCloud){
     numVerts = pointCloud.size() * 24;
     
+    myVbo.clear();
+    
     ofVec3f *tmpP;
     ofVec3f *normal;
     ofFloatColor *colors;
@@ -177,17 +182,11 @@ void Voxelize::voxelize(vector<ofVec3f> pointCloud, vector<ofFloatColor> colorCl
         
         
     }
- 
-    if(myVbo.getNumVertices() > 1){
-        myVbo.updateVertexData(tmpP, numVerts);
-        myVbo.updateNormalData(normal, numVerts);
-        myVbo.updateColorData(colors, numVerts);
-    }else{
+
+    myVbo.setVertexData(tmpP, numVerts, GL_DYNAMIC_DRAW);
+    myVbo.setNormalData(normal, numVerts, GL_DYNAMIC_DRAW);
+    myVbo.setColorData(colors, numVerts, GL_DYNAMIC_DRAW);
     
-        myVbo.setVertexData(tmpP, numVerts, GL_DYNAMIC_DRAW);
-        myVbo.setNormalData(normal, numVerts, GL_DYNAMIC_DRAW);
-        myVbo.setColorData(colors, numVerts, GL_DYNAMIC_DRAW);
-    }
     
     
     

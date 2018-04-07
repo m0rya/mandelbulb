@@ -36,13 +36,14 @@ public:
     
     
     void exportAsPly(string fileName);
+    void exportAsBinvox(string fileName);
     void recalc();
     void drawGui();
     
     
     
 private:
-    int resolution = 200;
+    int resolution = 30;
     int iteration = 5;
     int nValue = 8;
     float size = 3.0;
@@ -53,6 +54,7 @@ private:
     vector<ofVec3f> point;
     vector<ofVec3f> cValue;
     vector<bool> result;
+    vector<int> dataForBinvox;
     vector<ofVec3f> mandel;
 
     
