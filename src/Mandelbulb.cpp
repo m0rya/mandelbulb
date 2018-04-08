@@ -42,6 +42,7 @@ void Mandelbulb::calcMandelbulb(){
     result.clear();
     cValue.clear();
     dataForBinvox.clear();
+    finalResult.clear();
     
     
     mandel.clear();
@@ -50,6 +51,7 @@ void Mandelbulb::calcMandelbulb(){
     point.resize(resolution*resolution*resolution);
     result.resize(resolution*resolution*resolution);
     cValue.resize(resolution*resolution*resolution);
+    finalResult.resize(resolution*resolution*resolution);
     //dataForBinvox.resize(resolution*resolution*resolution);
 
     for(int i=0; i<resolution; i++){
@@ -121,6 +123,7 @@ void Mandelbulb::calcMandelbulb(){
                 
                 if(result[i*resolution*resolution + j*resolution + k] == false){
                     
+                    /*
                     if(binvoxFlg){
                         binvoxFlg = false;
                         if(binvoxCount > 0){
@@ -134,6 +137,9 @@ void Mandelbulb::calcMandelbulb(){
                     }else{
                         binvoxCount++;
                     }
+                     */
+                    
+                    finalResult[i*resolution*resolution + j*resolution + k] = NULL;
                     
                     continue;
                 }
@@ -149,6 +155,7 @@ void Mandelbulb::calcMandelbulb(){
                 
                 if(count == 6){
                     
+                    /*
                     if(binvoxFlg){
                         binvoxFlg = false;
                         if(binvoxCount >0){
@@ -163,12 +170,14 @@ void Mandelbulb::calcMandelbulb(){
                         binvoxCount++;
                         
                     }
-                    
+                     */
                     
                     continue;
+                    finalResult[i*resolution*resolution + j*resolution + k] = NULL;
                     
                 }else{
                     
+                    /*
                     if(!binvoxFlg){
                         binvoxFlg = true;
                         
@@ -179,11 +188,14 @@ void Mandelbulb::calcMandelbulb(){
 
                         }
                         binvoxCount = 1;
+                     
                         
                         
                     }else{
                         binvoxCount++;
                     }
+                     */
+                    
                     
                     mandel.push_back(ofVec3f(i-resolution/2,k-resolution/2,j-resolution/2));
                     
@@ -191,6 +203,7 @@ void Mandelbulb::calcMandelbulb(){
                     
                     colorForMandel.push_back(ofFloatColor(ofMap(tmpColor.r, 0, 255, 0, 1.0), ofMap(tmpColor.g, 0, 255, 0, 1.0), ofMap(tmpColor.b, 0, 255, 0, 1.0)));
                     
+                    finalResult[i*resolution*resolution + j*resolution + k] = tmpColor;
                     
                     
                 }
@@ -258,11 +271,11 @@ void Mandelbulb::drawGui(){
     
 }
 
+/*
 void Mandelbulb::exportAsPly(string fileName){
     ofFile plyFile;
     
     plyFile.open(fileName, ofFile::WriteOnly);
-    cout << mandel.size() << endl;
     
     string headerText = "ply\nformat ascii 1.0\ncomment File exported by m0rya's software\nelement vertex ";
     headerText += ofToString(mandel.size() * 8);
@@ -315,6 +328,113 @@ void Mandelbulb::exportAsPly(string fileName){
     cout << fileName << " is exported safely\n";
     
  
+}
+*/
+
+
+void Mandelbulb::exportAsPly(string fileName){
+    
+    int numVertices = 0;
+    int numFaces = 0;
+    
+    float voxSize = 0.5;
+    
+    string vertexData = "";
+    string indexData = "";
+    
+    
+    
+    for(int i=0; i<resolution; i++){
+        for(int j=0; j<resolution; j++){
+            for(int k=0; k<resolution; k++){
+                
+                ofColor crnt = finalResult[i*resolution*resolution + j*resolution + k];
+                
+                if(crnt != NULL){
+                    numVertices ++;
+                    
+                    vertexData += ofToString(k-voxSize) + " " + ofToString(j+voxSize) + " " + ofToString(i-voxSize) + " " + to_string(crnt.r) + " " + to_string(crnt.g) + " " + to_string(crnt.b) + "\n";
+                    vertexData += ofToString(k-voxSize) + " " + ofToString(j-voxSize) + " " + ofToString(i-voxSize) + " " + to_string(crnt.r) + " " + to_string(crnt.g) + " " + to_string(crnt.b) + "\n";
+                    vertexData += ofToString(k-voxSize) + " " + ofToString(j-voxSize) + " " + ofToString(i+voxSize) + " " + to_string(crnt.r) + " " + to_string(crnt.g) + " " + to_string(crnt.b) + "\n";
+                    vertexData += ofToString(k-voxSize) + " " + ofToString(j+voxSize) + " " + ofToString(i+voxSize) + " " + to_string(crnt.r) + " " + to_string(crnt.g) + " " + to_string(crnt.b) + "\n";
+                    
+                    vertexData += ofToString(k+voxSize) + " " + ofToString(j+voxSize) + " " + ofToString(i-voxSize) + " " + to_string(crnt.r) + " " + to_string(crnt.g) + " " + to_string(crnt.b) + "\n";
+                    vertexData += ofToString(k+voxSize) + " " + ofToString(j-voxSize) + " " + ofToString(i-voxSize) + " " + to_string(crnt.r) + " " + to_string(crnt.g) + " " + to_string(crnt.b) + "\n";
+                    vertexData += ofToString(k+voxSize) + " " + ofToString(j-voxSize) + " " + ofToString(i+voxSize) + " " + to_string(crnt.r) + " " + to_string(crnt.g) + " " + to_string(crnt.b) + "\n";
+                    vertexData += ofToString(k+voxSize) + " " + ofToString(j+voxSize) + " " + ofToString(i+voxSize) + " " + to_string(crnt.r) + " " + to_string(crnt.g) + " " + to_string(crnt.b) + "\n";
+                    
+                    
+                    
+                    int crntIndex = numVertices-1;
+                    
+                    if(k == 0 || finalResult[i*resolution*resolution + j*resolution + k-1] == NULL){
+                        indexData += "4 " + ofToString(crntIndex*8 + 0) + " " + ofToString(crntIndex*8 + 1) + " " + ofToString(crntIndex*8 + 2) + " " + ofToString(crntIndex*8 + 3) + "\n";
+                        numFaces ++;
+                    }
+                    
+                    if(k == resolution-1 || finalResult[i*resolution*resolution + j*resolution + k+1] == NULL){
+                        indexData += "4 " + ofToString(crntIndex*8 + 7) + " " + ofToString(crntIndex*8 + 6) + " " + ofToString(crntIndex*8 + 5) + " " + ofToString(crntIndex*8 + 4) + "\n";
+                        numFaces ++;
+                    }
+                    
+                    if(j == 0 || finalResult[i*resolution*resolution + (j-1)*resolution + k] == NULL){
+                        indexData += "4 " + ofToString(crntIndex*8 + 5) + " " + ofToString(crntIndex*8 + 6) + " " + ofToString(crntIndex*8 + 2) + " " + ofToString(crntIndex*8 + 1) + "\n";
+                        numFaces ++;
+                    }
+                    
+                    
+                    
+                    if(j == resolution-1 || finalResult[i*resolution*resolution + (j+1)*resolution + k] == NULL){
+                        indexData += "4 " + ofToString(crntIndex*8 + 0) + " " + ofToString(crntIndex*8 + 3) + " " + ofToString(crntIndex*8 + 7) + " " + ofToString(crntIndex*8 + 4) + "\n";
+                        numFaces ++;
+                    }
+                    
+                    if(i == 0 || finalResult[(i-1)*resolution*resolution + j*resolution + k] == NULL){
+                        indexData += "4 " + ofToString(crntIndex*8 + 4) + " " + ofToString(crntIndex*8 + 5) + " " + ofToString(crntIndex*8 + 1) + " " + ofToString(crntIndex*8 + 0) + "\n";
+                        numFaces ++;
+                    }
+                    
+                    if(i == resolution -1 || finalResult[(i+1)*resolution*resolution + j*resolution + k] == NULL){
+                        indexData += "4 " + ofToString(crntIndex*8 + 3) + " " + ofToString(crntIndex*8 + 2) + " " + ofToString(crntIndex*8 + 6) + " " + ofToString(crntIndex*8 + 7) + "\n";
+                        numFaces ++;
+                    }
+                    
+                    
+                    
+                    
+                }
+                
+                
+            }
+        }
+    }
+    
+    /*
+    string headerText = "ply\nformat ascii 1.0\ncomment File exported by m0rya's software\nelement vertex ";
+    headerText += ofToString(mandel.size() * 8);
+    headerText += "\nproperty float x\nproperty float y\nproperty float z\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nelement face ";
+    headerText += ofToString(mandel.size() * 6);
+    headerText += "\nproperty list uchar uint vertex_index\nend_header\n";
+     */
+    
+    
+    string resultData = "ply\nformat ascii 1.0\ncomment File exported by m0rya's software\nelement vertex ";
+    resultData += ofToString(numVertices * 8);
+    resultData += "\nproperty float x\nproperty float y\nproperty float z\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nelement face ";
+    resultData += ofToString(numFaces);
+    resultData += "\nproperty list uchar uint vertex_index\nend_header\n";
+    
+    resultData += vertexData;
+    resultData += indexData;
+    
+    
+    ofBuffer buf(resultData.c_str(), resultData.size());
+    ofBufferToFile(fileName, buf);
+    
+    
+    cout << fileName << " was exported\n";
+    
+    
 }
 
 

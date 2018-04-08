@@ -94,7 +94,7 @@ void ofApp::keyReleased(int key){
         //recording = true;
         //startFrameNum = ofGetFrameNum();
         
-        //man.exportAsPly("man3.ply");
+        man.exportAsPly("man4.ply");
         //man.exportAsBinvox("man.binvox");
     }
 

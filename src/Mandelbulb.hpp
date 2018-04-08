@@ -54,6 +54,8 @@ private:
     vector<ofVec3f> point;
     vector<ofVec3f> cValue;
     vector<bool> result;
+    vector<ofColor> finalResult;
+    
     vector<int> dataForBinvox;
     vector<ofVec3f> mandel;
 
@@ -75,6 +77,9 @@ private:
     ofxFloatSlider gui_size;
     ofxButton gui_recalc;
     ofxLabel gui_label;
+    
+    
+    string writeWithMesh(int i, int j, int k, int index[6]);
     
     
     
